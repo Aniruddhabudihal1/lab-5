@@ -36,7 +36,6 @@ def add_item(item=None, qty=0):
         return False
 
     stock_data[item] = stock_data.get(item, 0) + qty_int
-    # Use lazy formatting so logging can avoid unnecessary formatting
     logging.info("%s: Added %d of %s", datetime.now(), qty_int, item)
     return True
 
@@ -78,11 +77,6 @@ def get_qty(item):
 
 
 def load_data(file="inventory.json"):
-    """Return dict loaded from JSON inventory file or empty dict.
-
-    Does not mutate module-level state; caller should merge the
-    returned mapping into the runtime inventory if desired.
-    """
     try:
         with open(file, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -113,14 +107,12 @@ def save_data(file="inventory.json"):
 
 
 def print_data():
-    """Print a simple items report to stdout."""
     print("Items Report")
     for name, qty in stock_data.items():
         print(name, "->", qty)
 
 
 def check_low_items(threshold=5):
-    """Return list of items with quantity below threshold."""
     result = []
     for name, qty in stock_data.items():
         if qty < threshold:
@@ -129,24 +121,20 @@ def check_low_items(threshold=5):
 
 
 def main():
-    """Run a small demonstration of inventory operations."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(message)s")
 
-    # Valid operations
     add_item("apple", 10)
     add_item("banana", 2)
 
-    # Demonstrate invalid inputs (will be logged and ignored)
-    add_item(123, "ten")  # invalid types, will be rejected
+    add_item(123, "ten")
 
     remove_item("apple", 3)
-    remove_item("orange", 1)  # not present, will be logged
+    remove_item("orange", 1)
 
     print("Apple stock:", get_qty("apple"))
     print("Low items:", check_low_items())
 
     save_data()
-    # Merge loaded data into existing in-memory mapping without rebinding
     loaded = load_data()
     stock_data.clear()
     stock_data.update(loaded)
